@@ -1,4 +1,7 @@
+using FeatureFlagApi.Models;
 using Microsoft.EntityFrameworkCore;
+
+namespace FeatureFlagApi.Data;
 
 public class FeatureFlagDbContext(DbContextOptions<FeatureFlagDbContext> options)
     : DbContext(options)

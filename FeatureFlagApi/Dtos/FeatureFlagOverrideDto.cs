@@ -1,8 +1,6 @@
-using System;
+namespace FeatureFlagApi.Dtos;
 
-namespace FeatureFlagApi.Models;
-
-public class FeatureFlagOverride
+public record class FeatureFlagOverrideDto
 {
     public int Id { get; set; }
     public int FeatureFlagId { get; set; }

@@ -15,6 +15,9 @@ public class FeatureFlagDbContext(DbContextOptions<FeatureFlagDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<FeatureFlag>().HasIndex(ff => ff.Key).IsUnique();
+        modelBuilder
+            .Entity<FeatureFlag>()
+            .HasIndex(ff => new { ff.Key, ff.Environment })
+            .IsUnique();
     }
 }

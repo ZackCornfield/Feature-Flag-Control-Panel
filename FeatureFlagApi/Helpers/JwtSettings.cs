@@ -1,6 +1,6 @@
 using System;
 
-namespace TaskFlowLiteApi.Helpers;
+namespace FeatureFlagApi.Helpers;
 
 public class JwtSettings
 {

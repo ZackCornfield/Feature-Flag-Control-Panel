@@ -1,6 +1,9 @@
 using System.Text;
 using FeatureFlagApi.Data;
+using FeatureFlagApi.Helpers;
+using FeatureFlagApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using TaskFlowLiteApi.Extensions;
@@ -12,6 +15,13 @@ var corsConfig = "corsConfig";
 var builder = WebApplication.CreateBuilder(args);
 
 // 3. Add services to the DI container
+
+// Get JWT settings from configuration
+var jwtSettings =
+    builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
+    ?? throw new InvalidOperationException("JWT settings are not configured properly.");
+builder.Services.AddSingleton(jwtSettings);
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -35,6 +45,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 // 4. Configure database
 var connString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddSqlite<FeatureFlagDbContext>(connString);
@@ -55,10 +68,6 @@ builder.Services.AddCors(options =>
     );
 });
 
-// Get JWT settings from configuration
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"];
-
 // Add Authentication
 builder
     .Services.AddAuthentication(options =>
@@ -74,9 +83,11 @@ builder
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings.SecretKey)
+            ),
         };
     });
 

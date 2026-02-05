@@ -84,6 +84,9 @@ public class FeatureFlagService(FeatureFlagDbContext dbContext) : IFeatureFlagSe
 
     public async Task<FeatureFlagDto> AddFeatureFlagAsync(FeatureFlagRequestDto request)
     {
+        Console.WriteLine(
+            $"Received request to add feature flag with Key: {request.Key}, Environment: {request.Environment}"
+        );
         var FeatureFlag = new FeatureFlag
         {
             Key = request.Key,
@@ -92,10 +95,18 @@ public class FeatureFlagService(FeatureFlagDbContext dbContext) : IFeatureFlagSe
             CreatedAt = DateTime.UtcNow,
         };
 
+        Console.WriteLine(
+            $"Adding feature flag: {FeatureFlag.Key} in environment: {FeatureFlag.Environment}"
+        );
+
         var result = await dbContext.FeatureFlags.AddAsync(FeatureFlag);
 
         if (result is null)
             return null!;
+
+        Console.WriteLine(
+            $"Feature flag added with ID: {result.Entity.Id}, Key: {result.Entity.Key}, Environment: {result.Entity.Environment}"
+        );
 
         await dbContext.SaveChangesAsync();
         return new FeatureFlagDto

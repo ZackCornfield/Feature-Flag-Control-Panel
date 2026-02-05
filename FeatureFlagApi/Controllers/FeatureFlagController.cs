@@ -28,7 +28,7 @@ namespace FeatureFlagApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FeatureFlagController(FeatureFlagService featureFlagService) : ControllerBase
+    public class FeatureFlagController(IFeatureFlagService featureFlagService) : ControllerBase
     {
         // Control Panel API Endpoints for Feature Flags
 
@@ -73,7 +73,7 @@ namespace FeatureFlagApi.Controllers
                 var result = await featureFlagService.AddFeatureFlagAsync(request);
                 if (result is null)
                     return BadRequest("Failed to add feature flag.");
-                return CreatedAtAction(nameof(result), new { id = result.Id }, result);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -177,7 +177,7 @@ namespace FeatureFlagApi.Controllers
                 {
                     return BadRequest("Failed to override feature flag for user");
                 }
-                return Ok();
+                return Ok(result);
             }
             catch (Exception ex)
             {

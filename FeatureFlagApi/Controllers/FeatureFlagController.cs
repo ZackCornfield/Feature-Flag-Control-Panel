@@ -1,6 +1,7 @@
 using FeatureFlagApi.Dtos;
 using FeatureFlagApi.Models;
 using FeatureFlagApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,7 +34,7 @@ namespace FeatureFlagApi.Controllers
         // Control Panel API Endpoints for Feature Flags
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetAllFeatureFlags()
         {
             try
@@ -48,7 +49,7 @@ namespace FeatureFlagApi.Controllers
         }
 
         [HttpGet("{id}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetFeatureFlagById(int id)
         {
             try
@@ -65,7 +66,7 @@ namespace FeatureFlagApi.Controllers
         }
 
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> AddFeatureFlag([FromBody] FeatureFlagRequestDto request)
         {
             try
@@ -82,7 +83,7 @@ namespace FeatureFlagApi.Controllers
         }
 
         [HttpPut("{id}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> UpdateFeatureFlag(
             int id,
             [FromBody] FeatureFlagRequestDto request
@@ -102,7 +103,7 @@ namespace FeatureFlagApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> DeleteFeatureFlag(int id)
         {
             try
@@ -121,7 +122,7 @@ namespace FeatureFlagApi.Controllers
         }
 
         [HttpPatch("{id}/toggle")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> ToggleFeatureFlag(
             int id,
             [FromBody] FeatureFlagToggleRequest request
@@ -144,7 +145,7 @@ namespace FeatureFlagApi.Controllers
 
         // Override endpoints
         [HttpGet("override/{userId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetAllOverridesForUser(string userId)
         {
             try
@@ -159,7 +160,7 @@ namespace FeatureFlagApi.Controllers
         }
 
         [HttpPost("{id}/override/{userId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> AddFeatureFlagOverrideForUser(
             int id,
             string userId,
@@ -186,7 +187,7 @@ namespace FeatureFlagApi.Controllers
         }
 
         [HttpDelete("{id}/override/{userId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> RemoveFeatureFlagOverrideForUser(int id, string userId)
         {
             try
@@ -208,7 +209,7 @@ namespace FeatureFlagApi.Controllers
         }
 
         [HttpPatch("{id}/override/{userId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> ToggleFeatureFlagOverrideForUser(
             int id,
             string userId,

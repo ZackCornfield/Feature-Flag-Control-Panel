@@ -58,8 +58,8 @@ export class FeatureFlagService {
     return this.http.patch<boolean>(`${this.API_URL}/${id}/toggle`, request);
   }
 
-  getFeatureFlagOverrides(userId: string): Observable<FeatureFlagOverrideDto[]> {
-    return this.http.get<FeatureFlagOverrideDto[]>(`${this.API_URL}/override/${userId}`);
+  getFeatureFlagOverrides(): Observable<FeatureFlagOverrideDto[]> {
+    return this.http.get<FeatureFlagOverrideDto[]>(`${this.API_URL}/override`);
   }
 
   addFeatureFlagOverrideForUser(

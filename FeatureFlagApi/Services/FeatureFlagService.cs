@@ -22,7 +22,7 @@ public interface IFeatureFlagService
 
     public Task<bool> ToggleFeatureFlagAsync(int id, bool isEnabled);
 
-    public Task<List<FeatureFlagOverrideDto>> GetFeatureFlagOverridesForUserAsync(string userId);
+    public Task<List<FeatureFlagOverrideDto>> GetFeatureFlagOverridesAsync();
 
     public Task<FeatureFlagOverrideDto> AddFeatureFlagOverrideForUserAsync(
         int featureFlagId,
@@ -165,13 +165,10 @@ public class FeatureFlagService(FeatureFlagDbContext dbContext) : IFeatureFlagSe
         return existingFlag.IsEnabled;
     }
 
-    public async Task<List<FeatureFlagOverrideDto>> GetFeatureFlagOverridesForUserAsync(
-        string userId
-    )
+    public async Task<List<FeatureFlagOverrideDto>> GetFeatureFlagOverridesAsync()
     {
         return await dbContext
-            .FeatureFlagOverrides.Where(o => o.UserId == userId)
-            .Select(o => new FeatureFlagOverrideDto
+            .FeatureFlagOverrides.Select(o => new FeatureFlagOverrideDto
             {
                 Id = o.Id,
                 FeatureFlagId = o.FeatureFlagId,

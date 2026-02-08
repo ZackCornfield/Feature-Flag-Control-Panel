@@ -5,14 +5,12 @@ import {
   FeatureFlagDto,
   FeatureFlagToggleRequestDto,
 } from '../../../../core/services/feature-flag';
-import { AuthService } from '../../../../core/services/auth';
 import { Toggle } from '../../../../shared/components/toggle/toggle';
 import { FormsModule } from '@angular/forms';
 
-interface FlagWithOverride {
+interface OverrideWithFlag {
+  data: FeatureFlagOverrideDto;
   flag: FeatureFlagDto;
-  override: FeatureFlagOverrideDto | null;
-  hasOverride: boolean;
 }
 
 @Component({
@@ -22,54 +20,71 @@ interface FlagWithOverride {
   styleUrl: './feature-flag-overrides.css',
 })
 export class FeatureFlagOverrides implements OnInit {
-  constructor(
-    private featureFlagService: FeatureFlagService,
-    private authService: AuthService,
-  ) {}
+  constructor(private featureFlagService: FeatureFlagService) {}
 
   featureFlags = signal<FeatureFlagDto[]>([]);
-  featureFlagOverrides = signal<FeatureFlagOverrideDto[]>([]);
+  allOverrides = signal<FeatureFlagOverrideDto[]>([]);
   searchTerm = '';
-  showFilter = signal<'all' | 'overridden' | 'available'>('all');
+  statusFilter = signal<'all' | 'enabled' | 'disabled'>('all');
 
-  // Combine flags with their overrides
-  flagData = computed(() => {
+  // Modal state
+  showAddModal = signal(false);
+  selectedFlagForOverride = signal<FeatureFlagDto | undefined>(undefined);
+  flagSearchTerm = '';
+  newUserId = '';
+  newOverrideState = false;
+
+  // Combine overrides with their flag details
+  overridesWithFlags = computed(() => {
     const flags = this.featureFlags();
-    const overrides = this.featureFlagOverrides();
+    const overrides = this.allOverrides();
 
-    return flags.map((flag) => {
-      const override = overrides.find((o) => o.featureFlagId === flag.id);
-      return {
-        flag,
-        override: override || null,
-        hasOverride: !!override,
-      } as FlagWithOverride;
-    });
+    return overrides
+      .map((override) => {
+        const flag = flags.find((f) => f.id === override.featureFlagId);
+        return {
+          data: override,
+          flag: flag!,
+        } as OverrideWithFlag;
+      })
+      .filter((o) => o.flag); // Filter out any overrides without matching flags
   });
 
-  // Filtered flag data based on search and filter
-  filteredFlagData = computed(() => {
-    let data = this.flagData();
+  // Filtered overrides based on search and status
+  filteredOverrides = computed(() => {
+    let data = this.overridesWithFlags();
 
     // Apply search filter
     if (this.searchTerm) {
       const search = this.searchTerm.toLowerCase();
       data = data.filter(
-        (d) =>
-          d.flag.key.toLowerCase().includes(search) ||
-          d.flag.environment.toLowerCase().includes(search),
+        (o) =>
+          o.flag.key.toLowerCase().includes(search) ||
+          o.flag.environment.toLowerCase().includes(search) ||
+          o.data.userId.toLowerCase().includes(search),
       );
     }
 
-    // Apply show filter
-    const filter = this.showFilter();
-    if (filter === 'overridden') {
-      data = data.filter((d) => d.hasOverride);
-    } else if (filter === 'available') {
-      data = data.filter((d) => !d.hasOverride);
+    // Apply status filter
+    const filter = this.statusFilter();
+    if (filter === 'enabled') {
+      data = data.filter((o) => o.data.isEnabled);
+    } else if (filter === 'disabled') {
+      data = data.filter((o) => !o.data.isEnabled);
     }
 
     return data;
+  });
+
+  // Filtered flags for the add modal dropdown
+  filteredFlags = computed(() => {
+    const flags = this.featureFlags();
+    if (!this.flagSearchTerm) return [];
+
+    const search = this.flagSearchTerm.toLowerCase();
+    return flags.filter(
+      (f) => f.key.toLowerCase().includes(search) || f.environment.toLowerCase().includes(search),
+    );
   });
 
   ngOnInit(): void {
@@ -78,7 +93,7 @@ export class FeatureFlagOverrides implements OnInit {
 
   loadData(): void {
     this.loadFeatureFlags();
-    this.loadOverrides();
+    this.loadAllOverrides();
   }
 
   loadFeatureFlags(): void {
@@ -88,89 +103,91 @@ export class FeatureFlagOverrides implements OnInit {
     });
   }
 
-  loadOverrides(): void {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) {
-      console.error('Current user is not available');
-      return;
-    }
-    this.featureFlagService.getFeatureFlagOverrides(currentUser.id).subscribe({
-      next: (overrides) => {
-        this.featureFlagOverrides.set(overrides);
-      },
-      error: (err) => {
-        console.error('Error fetching feature flag overrides:', err);
-      },
+  loadAllOverrides(): void {
+    this.featureFlagService.getFeatureFlagOverrides().subscribe({
+      next: (overrides) => this.allOverrides.set(overrides),
+      error: (err) => console.error('Error loading overrides', err),
     });
   }
 
   onSearchChange(): void {
-    // Trigger recomputation
     this.featureFlags.set([...this.featureFlags()]);
   }
 
-  onAddOverride(flag: FeatureFlagDto): void {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) {
-      console.error('Current user is not available');
-      return;
-    }
+  onFlagSearchChange(): void {
+    this.featureFlags.set([...this.featureFlags()]);
+  }
 
-    // Create override with opposite of global state by default
+  openAddOverrideModal(): void {
+    this.showAddModal.set(true);
+    this.flagSearchTerm = '';
+    this.newUserId = '';
+    this.newOverrideState = false;
+    this.selectedFlagForOverride.set(undefined);
+  }
+
+  closeAddModal(): void {
+    this.showAddModal.set(false);
+    this.selectedFlagForOverride.set(undefined);
+    this.flagSearchTerm = '';
+    this.newUserId = '';
+    this.newOverrideState = false;
+  }
+
+  selectFlag(flag: FeatureFlagDto): void {
+    this.selectedFlagForOverride.set(flag);
+    this.flagSearchTerm = '';
+  }
+
+  onAddOverride(): void {
+    const flag = this.selectedFlagForOverride();
+    if (!flag || !this.newUserId.trim()) return;
+
     const request: FeatureFlagToggleRequestDto = {
-      isEnabled: !flag.isEnabled,
+      isEnabled: this.newOverrideState,
     };
 
     this.featureFlagService
-      .addFeatureFlagOverrideForUser(flag.id, currentUser.id, request)
+      .addFeatureFlagOverrideForUser(flag.id, this.newUserId.trim(), request)
       .subscribe({
         next: () => {
-          console.log(`Override added for ${flag.key}`);
-          this.loadOverrides();
+          console.log(`Override added for ${flag.key} for user ${this.newUserId}`);
+          this.loadAllOverrides();
+          this.closeAddModal();
         },
         error: (err) => console.error('Error adding override', err),
       });
   }
 
-  onToggleOverride(
-    newState: boolean,
-    flag: FeatureFlagDto,
-    override: FeatureFlagOverrideDto,
-  ): void {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) {
-      console.error('Current user is not available');
-      return;
-    }
-
+  onToggleOverride(newState: boolean, override: OverrideWithFlag): void {
     const request: FeatureFlagToggleRequestDto = {
       isEnabled: newState,
     };
 
     this.featureFlagService
-      .toggleFeatureFlagOverrideForUser(flag.id, currentUser.id, request)
+      .toggleFeatureFlagOverrideForUser(override.flag.id, override.data.userId, request)
       .subscribe({
         next: () => {
-          console.log(`Override toggled for ${flag.key} to ${newState}`);
-          this.loadOverrides();
+          console.log(`Override toggled for ${override.flag.key} to ${newState}`);
+          this.loadAllOverrides();
         },
         error: (err) => console.error('Error toggling override', err),
       });
   }
 
-  onRemoveOverride(flag: FeatureFlagDto, override: FeatureFlagOverrideDto): void {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) {
-      console.error('Current user is not available');
+  onDeleteOverride(override: OverrideWithFlag): void {
+    if (!confirm(`Delete override for ${override.flag.key} (user: ${override.data.userId})?`)) {
       return;
     }
 
-    this.featureFlagService.removeFeatureFlagOverrideForUser(flag.id, currentUser.id).subscribe({
-      next: () => {
-        console.log(`Override removed for ${flag.key}`);
-        this.loadOverrides();
-      },
-      error: (err) => console.error('Error removing override', err),
-    });
+    this.featureFlagService
+      .removeFeatureFlagOverrideForUser(override.flag.id, override.data.userId)
+      .subscribe({
+        next: () => {
+          console.log(`Override removed for ${override.flag.key}`);
+          this.loadAllOverrides();
+        },
+        error: (err) => console.error('Error removing override', err),
+      });
   }
 }

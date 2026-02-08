@@ -1,7 +1,8 @@
 <div class="container">
   <div class="header">
-    <h1>My Feature Flag Overrides</h1>
-    <p class="subtitle">Personal overrides that take precedence over global flag settings</p>
+    <h1>Feature Flag Overrides</h1>
+    <p class="subtitle">Manage user-specific feature flag overrides across your application</p>
+    <button class="add-override-btn" (click)="openAddOverrideModal()">+ Add Override</button>
   </div>
 
   <!-- Search and filter -->
@@ -9,82 +10,167 @@
     <input
       type="text"
       class="search-input"
-      placeholder="Search flags..."
+      placeholder="Search by flag key, user ID, or environment..."
       [(ngModel)]="searchTerm"
       (input)="onSearchChange()"
     />
     <div class="filter-toggle">
-      <button [class.active]="showFilter() === 'all'" (click)="showFilter.set('all')">
-        All Flags
+      <button [class.active]="statusFilter() === 'all'" (click)="statusFilter.set('all')">
+        All
       </button>
-      <button [class.active]="showFilter() === 'overridden'" (click)="showFilter.set('overridden')">
-        My Overrides
+      <button [class.active]="statusFilter() === 'enabled'" (click)="statusFilter.set('enabled')">
+        Enabled
       </button>
-      <button [class.active]="showFilter() === 'available'" (click)="showFilter.set('available')">
-        Available
+      <button [class.active]="statusFilter() === 'disabled'" (click)="statusFilter.set('disabled')">
+        Disabled
       </button>
     </div>
   </div>
 
-  <!-- Feature flags list -->
-  <div class="flags-container">
-    @for (flagData of filteredFlagData(); track flagData.flag.id) {
-      <div class="flag-card" [class.has-override]="flagData.hasOverride">
-        <div class="flag-header">
-          <div class="flag-info">
-            <h3>{{ flagData.flag.key }}</h3>
-            <span class="environment-badge">{{ flagData.flag.environment }}</span>
-          </div>
-          @if (flagData.hasOverride) {
-            <span class="override-badge">Overridden</span>
-          }
+  <!-- Overrides Table -->
+  <div class="overrides-container">
+    @if (filteredOverrides().length > 0) {
+      <div class="overrides-table">
+        <div class="table-header">
+          <div class="col-flag">Flag Key</div>
+          <div class="col-environment">Environment</div>
+          <div class="col-user">User ID</div>
+          <div class="col-global">Global State</div>
+          <div class="col-override">Override State</div>
+          <div class="col-actions">Actions</div>
         </div>
 
-        <div class="flag-states">
-          <div class="state-item">
-            <span class="state-label">Global State:</span>
-            <span class="state-value" [class.enabled]="flagData.flag.isEnabled">
-              {{ flagData.flag.isEnabled ? 'Enabled' : 'Disabled' }}
-            </span>
-          </div>
-
-          @if (flagData.hasOverride && flagData.override) {
-            <div class="state-item override-state">
-              <span class="state-label">Your Override:</span>
-              <span class="state-value" [class.enabled]="flagData.override.isEnabled">
-                {{ flagData.override.isEnabled ? 'Enabled' : 'Disabled' }}
+        @for (override of filteredOverrides(); track override.data.id) {
+          <div class="table-row">
+            <div class="col-flag">
+              <span class="flag-key">{{ override.flag.key }}</span>
+            </div>
+            <div class="col-environment">
+              <span class="environment-badge">{{ override.flag.environment }}</span>
+            </div>
+            <div class="col-user">
+              <code class="user-id">{{ override.data.userId }}</code>
+            </div>
+            <div class="col-global">
+              <span class="state-badge" [class.enabled]="override.flag.isEnabled">
+                {{ override.flag.isEnabled ? 'ON' : 'OFF' }}
               </span>
             </div>
-          }
-        </div>
-
-        <div class="flag-actions">
-          @if (flagData.hasOverride && flagData.override) {
-            <div class="override-controls">
+            <div class="col-override">
               <app-toggle
-                [initialState]="flagData.override.isEnabled"
-                (toggleOutput)="onToggleOverride($event, flagData.flag, flagData.override)"
+                [initialState]="override.data.isEnabled"
+                (toggleOutput)="onToggleOverride($event, override)"
               ></app-toggle>
-              <button
-                class="remove-btn"
-                (click)="onRemoveOverride(flagData.flag, flagData.override)"
-              >
-                Remove Override
-              </button>
             </div>
-          } @else {
-            <button class="add-override-btn" (click)="onAddOverride(flagData.flag)">
-              Add Override
-            </button>
-          }
-        </div>
+            <div class="col-actions">
+              <button class="delete-btn" (click)="onDeleteOverride(override)">Delete</button>
+            </div>
+          </div>
+        }
       </div>
-    }
-
-    @if (filteredFlagData().length === 0) {
+    } @else {
       <div class="empty-state">
-        <p>No flags found matching your search</p>
+        <div class="empty-icon">🔍</div>
+        <h3>No overrides found</h3>
+        <p>
+          {{
+            searchTerm
+              ? 'Try adjusting your search criteria'
+              : 'Create your first override to get started'
+          }}
+        </p>
       </div>
     }
   </div>
+
+  <!-- Add Override Modal -->
+  @if (showAddModal()) {
+    <div class="modal-overlay" (click)="closeAddModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Add Feature Flag Override</h2>
+          <button class="close-btn" (click)="closeAddModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="flag-select">Feature Flag</label>
+            <div class="searchable-select">
+              <input
+                type="text"
+                id="flag-search"
+                class="search-input-modal"
+                placeholder="Search for a flag..."
+                [(ngModel)]="flagSearchTerm"
+                (input)="onFlagSearchChange()"
+              />
+              @if (filteredFlags().length > 0) {
+                <div class="select-dropdown">
+                  @for (flag of filteredFlags(); track flag.id) {
+                    <div
+                      class="select-option"
+                      [class.selected]="selectedFlagForOverride()?.id === flag.id"
+                      (click)="selectFlag(flag)"
+                    >
+                      <div class="option-main">
+                        <span class="option-key">{{ flag.key }}</span>
+                        <span class="option-env">{{ flag.environment }}</span>
+                      </div>
+                      <span class="option-state" [class.enabled]="flag.isEnabled">
+                        {{ flag.isEnabled ? 'ON' : 'OFF' }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            @if (selectedFlagForOverride()) {
+              <div class="selected-flag-display">
+                <span class="selected-label">Selected:</span>
+                <span class="selected-flag">{{ selectedFlagForOverride()!.key }}</span>
+                <span class="selected-env">({{ selectedFlagForOverride()!.environment }})</span>
+              </div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="user-id">User ID</label>
+            <input
+              id="user-id"
+              type="text"
+              class="input-field"
+              placeholder="Enter user ID (e.g., 550e8400-e29b-41d4-a716-446655440000)"
+              [(ngModel)]="newUserId"
+            />
+            <span class="helper-text">The user ID from your application</span>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="newOverrideState" />
+              <span>Enable this override</span>
+            </label>
+            <span class="helper-text">
+              @if (selectedFlagForOverride()) {
+                Global state is
+                <strong>{{ selectedFlagForOverride()!.isEnabled ? 'ON' : 'OFF' }}</strong
+                >, override will be <strong>{{ newOverrideState ? 'ON' : 'OFF' }}</strong>
+              }
+            </span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="cancel-btn" (click)="closeAddModal()">Cancel</button>
+          <button
+            class="submit-btn"
+            (click)="onAddOverride()"
+            [disabled]="!selectedFlagForOverride() || !newUserId.trim()"
+          >
+            Add Override
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

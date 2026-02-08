@@ -144,13 +144,13 @@ namespace FeatureFlagApi.Controllers
         }
 
         // Override endpoints
-        [HttpGet("override/{userId}")]
+        [HttpGet("override")]
         [Authorize]
-        public async Task<IActionResult> GetAllOverridesForUser(string userId)
+        public async Task<IActionResult> GetAllOverrides()
         {
             try
             {
-                var result = await featureFlagService.GetFeatureFlagOverridesForUserAsync(userId);
+                var result = await featureFlagService.GetFeatureFlagOverridesAsync();
                 return Ok(result);
             }
             catch (Exception ex)

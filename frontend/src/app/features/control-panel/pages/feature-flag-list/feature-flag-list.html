@@ -32,7 +32,10 @@
                 [initialState]="flag.isEnabled"
                 (toggleOutput)="onFeatureFlagToggle($event, flag)"
               ></app-toggle>
-              <button class="edit-btn" (click)="showEditModal(flag)">Edit</button>
+              <div class="flag-actions">
+                <button class="edit-btn" (click)="showEditModal(flag)">Edit</button>
+                <button class="delete-btn" (click)="onDeleteFlag(flag)">Delete</button>
+              </div>
             </div>
           }
         </div>

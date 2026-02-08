@@ -138,4 +138,16 @@ export class FeatureFlagList implements OnInit {
       });
     }
   }
+
+  onDeleteFlag(flag: FeatureFlagDto): void {
+    if (confirm(`Are you sure you want to delete the feature flag "${flag.key}"?`)) {
+      this.featureFlagService.deleteFeatureFlag(flag.id).subscribe({
+        next: () => {
+          console.log(`Feature flag ${flag.key} deleted`);
+          this.loadFeatureFlags();
+        },
+        error: (err) => console.error('Error deleting feature flag', err),
+      });
+    }
+  }
 }

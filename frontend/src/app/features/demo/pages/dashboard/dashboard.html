@@ -1,1 +1,159 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Feature flag showcase - Toggle flags in the control panel to see changes</p>
+  </div>
+
+  <!-- Feature Flag Status Panel -->
+  <div class="feature-status-panel">
+    <h2>Active Feature Flags</h2>
+    <div class="status-grid">
+      @for (flag of featureFlagStatus(); track flag.key) {
+        <div class="status-item" [class.enabled]="flag.isEnabled">
+          <div class="status-indicator"></div>
+          <span class="status-label">{{ flag.key }}</span>
+          <span class="status-value">{{ flag.isEnabled ? 'ON' : 'OFF' }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Conditional UI based on feature flags -->
+  <div class="content-sections">
+    <!-- NEW_DASHBOARD_UI Flag -->
+    @if (newDashboardUI()) {
+      <div class="feature-section modern">
+        <div class="section-badge">NEW</div>
+        <h2>Modern Dashboard</h2>
+        <p>This is the new dashboard UI with enhanced features and better design!</p>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">2,543</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-value">89%</div>
+            <div class="stat-label">Performance</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">$12.4k</div>
+            <div class="stat-label">Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">4.8</div>
+            <div class="stat-label">Rating</div>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="feature-section legacy">
+        <div class="section-badge legacy">OLD</div>
+        <h2>Classic Dashboard</h2>
+        <p>Legacy dashboard view</p>
+        <div class="legacy-stats">
+          <div class="legacy-stat">Total Users: 2,543</div>
+          <div class="legacy-stat">Performance: 89%</div>
+          <div class="legacy-stat">Revenue: $12.4k</div>
+          <div class="legacy-stat">Rating: 4.8</div>
+        </div>
+      </div>
+    }
+
+    <!-- ADVANCED_ANALYTICS Flag -->
+    @if (advancedAnalytics()) {
+      <div class="feature-section">
+        <div class="section-badge">PREMIUM</div>
+        <h2>Advanced Analytics</h2>
+        <div class="analytics-content">
+          <div class="chart-placeholder">
+            <div class="chart-bars">
+              <div class="bar" style="height: 60%"></div>
+              <div class="bar" style="height: 80%"></div>
+              <div class="bar" style="height: 45%"></div>
+              <div class="bar" style="height: 90%"></div>
+              <div class="bar" style="height: 70%"></div>
+              <div class="bar" style="height: 95%"></div>
+            </div>
+            <p class="chart-label">User Engagement Over Time</p>
+          </div>
+          <div class="insights">
+            <h3>Key Insights</h3>
+            <ul>
+              <li>📈 User engagement increased 23% this week</li>
+              <li>🎯 Conversion rate improved to 4.2%</li>
+              <li>⚡ Average session duration: 8m 42s</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="feature-section disabled">
+        <div class="section-badge disabled">LOCKED</div>
+        <h2>Advanced Analytics</h2>
+        <p class="disabled-message">
+          🔒 Enable the ADVANCED_ANALYTICS feature flag to unlock advanced analytics
+        </p>
+      </div>
+    }
+
+    <!-- BETA_FEATURES Flag -->
+    @if (betaFeatures()) {
+      <div class="feature-section beta">
+        <div class="section-badge beta">BETA</div>
+        <h2>Experimental Features</h2>
+        <div class="beta-features-list">
+          <div class="beta-feature">
+            <span class="feature-name">🤖 AI Assistant</span>
+            <span class="feature-status">Testing</span>
+          </div>
+          <div class="beta-feature">
+            <span class="feature-name">🎨 Theme Customization</span>
+            <span class="feature-status">Testing</span>
+          </div>
+          <div class="beta-feature">
+            <span class="feature-name">🔔 Smart Notifications</span>
+            <span class="feature-status">Testing</span>
+          </div>
+        </div>
+        <p class="beta-disclaimer">⚠️ These features are experimental and may change</p>
+      </div>
+    }
+
+    <!-- DARK_MODE Flag -->
+    @if (darkMode()) {
+      <div class="feature-section dark-mode-preview">
+        <div class="section-badge">THEME</div>
+        <h2>Dark Mode Preview</h2>
+        <div class="dark-mode-demo">
+          <div class="demo-window dark">
+            <div class="demo-header">Dark Mode Enabled</div>
+            <div class="demo-content">
+              <p>This is how the app looks in dark mode</p>
+              <div class="demo-buttons">
+                <button class="demo-btn">Primary</button>
+                <button class="demo-btn secondary">Secondary</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions">
+    <h3>💡 Try it out!</h3>
+    <p>
+      Go to the <a routerLink="/control-panel">Feature Flags Control Panel</a> and toggle different
+      flags to see the dashboard change in real-time.
+    </p>
+    <p>
+      Create flags like: <code>NEW_DASHBOARD_UI</code>, <code>ADVANCED_ANALYTICS</code>,
+      <code>BETA_FEATURES</code>, <code>DARK_MODE</code>
+    </p>
+  </div>
+</div>

@@ -13,7 +13,6 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 export const CONTROL_PANEL_ROUTES: Routes = [
   {
     path: '',
-    providers: [provideHttpClient(withInterceptors([authInterceptor]))],
     children: [
       {
         path: '',

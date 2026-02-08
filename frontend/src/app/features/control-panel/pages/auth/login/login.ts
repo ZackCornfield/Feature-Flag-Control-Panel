@@ -29,7 +29,7 @@ export class Login {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
-        this.router.navigate(['/task-list']);
+        this.router.navigate(['/control-panel']);
       },
       error: (err: any) => {
         console.error('Login failed', err);

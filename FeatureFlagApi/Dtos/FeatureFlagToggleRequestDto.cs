@@ -2,7 +2,7 @@ using System;
 
 namespace FeatureFlagApi.Dtos;
 
-public record FeatureFlagToggleRequest
+public record FeatureFlagToggleRequestDto
 {
     public bool IsEnabled { get; init; }
 }

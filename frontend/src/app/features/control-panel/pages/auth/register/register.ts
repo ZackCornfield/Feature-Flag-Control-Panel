@@ -29,7 +29,7 @@ export class Register {
 
     this.authService.register(this.registerForm.value).subscribe({
       next: () => {
-        this.router.navigate(['/']);
+        this.router.navigate(['/control-panel']);
       },
       error: (err: any) => {
         console.error('Registration failed', err);

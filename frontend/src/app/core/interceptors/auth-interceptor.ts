@@ -20,10 +20,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
   return next(req).pipe(
     catchError((error) => {
+      // If demo app - ignore auth errors (if request link includes "demo")
+      if (req.url.includes('demo')) {
+        return next(req);
+      }
+
       // If we receive a 401 Unauthorized response, redirect to login
       if (error.status === 401) {
         authService.logout();
-        router.navigate(['/login']);
+        router.navigate(['/control-panel/login']);
       }
       return throwError(() => error);
     }),

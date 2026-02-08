@@ -1,1 +1,10 @@
-<p>feature-flag-list works!</p>
+@for (flag of featureFlags(); track flag.id) {
+  <p>{{ flag.key }}</p>
+}
+
+// feature flag dictionary
+@for (key of featureFlagDictionary() | keyvalue; track key.key) {
+  <p>{{ key.key }}: {{ key.value }}</p>
+}
+
+<app-toggle [initialState]="true" (toggleOutput)="onToggle($event)"></app-toggle>

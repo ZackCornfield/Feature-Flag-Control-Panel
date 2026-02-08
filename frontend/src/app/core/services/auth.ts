@@ -28,7 +28,7 @@ export class AuthService {
     this.loadUserFromStorage();
   }
 
-  private readonly API_URL = 'http://localhost:5295/api/auth/';
+  private readonly API_URL = 'http://localhost:5248/api/auth/';
   currentUser = signal<UserDto | null>(null);
   isAuthenticated = signal<boolean>(false);
 

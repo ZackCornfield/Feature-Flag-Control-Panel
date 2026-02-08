@@ -1,1 +1,4 @@
-<p>toggle works!</p>
+<label class="toggle-switch">
+  <input type="checkbox" class="toggle-input" [checked]="toggleState()" (change)="onToggle()" />
+  <span class="toggle-slider"></span>
+</label>

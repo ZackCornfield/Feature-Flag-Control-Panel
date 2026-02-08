@@ -125,7 +125,7 @@ namespace FeatureFlagApi.Controllers
         [Authorize]
         public async Task<IActionResult> ToggleFeatureFlag(
             int id,
-            [FromBody] FeatureFlagToggleRequest request
+            [FromBody] FeatureFlagToggleRequestDto request
         )
         {
             try
@@ -164,7 +164,7 @@ namespace FeatureFlagApi.Controllers
         public async Task<IActionResult> AddFeatureFlagOverrideForUser(
             int id,
             string userId,
-            [FromBody] FeatureFlagToggleRequest request
+            [FromBody] FeatureFlagToggleRequestDto request
         )
         {
             try
@@ -208,12 +208,12 @@ namespace FeatureFlagApi.Controllers
             }
         }
 
-        [HttpPatch("{id}/override/{userId}")]
+        [HttpPatch("{id}/override/{userId}/toggle")]
         [Authorize]
         public async Task<IActionResult> ToggleFeatureFlagOverrideForUser(
             int id,
             string userId,
-            [FromBody] FeatureFlagToggleRequest request
+            [FromBody] FeatureFlagToggleRequestDto request
         )
         {
             try

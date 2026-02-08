@@ -68,13 +68,13 @@ export class FeatureFlagService {
     request: FeatureFlagToggleRequestDto,
   ): Observable<FeatureFlagOverrideDto> {
     return this.http.post<FeatureFlagOverrideDto>(
-      `${this.API_URL}/override/${id}/${userId}`,
+      `${this.API_URL}/${id}/override/${userId}`,
       request,
     );
   }
 
   removeFeatureFlagOverrideForUser(id: number, userId: string): Observable<boolean> {
-    return this.http.delete<boolean>(`${this.API_URL}/override/${id}/${userId}`);
+    return this.http.delete<boolean>(`${this.API_URL}/${id}/override/${userId}`);
   }
 
   toggleFeatureFlagOverrideForUser(

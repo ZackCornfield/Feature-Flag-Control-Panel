@@ -1,1 +1,90 @@
-<p>feature-flag-overrides works!</p>
+<div class="container">
+  <div class="header">
+    <h1>My Feature Flag Overrides</h1>
+    <p class="subtitle">Personal overrides that take precedence over global flag settings</p>
+  </div>
+
+  <!-- Search and filter -->
+  <div class="controls">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search flags..."
+      [(ngModel)]="searchTerm"
+      (input)="onSearchChange()"
+    />
+    <div class="filter-toggle">
+      <button [class.active]="showFilter() === 'all'" (click)="showFilter.set('all')">
+        All Flags
+      </button>
+      <button [class.active]="showFilter() === 'overridden'" (click)="showFilter.set('overridden')">
+        My Overrides
+      </button>
+      <button [class.active]="showFilter() === 'available'" (click)="showFilter.set('available')">
+        Available
+      </button>
+    </div>
+  </div>
+
+  <!-- Feature flags list -->
+  <div class="flags-container">
+    @for (flagData of filteredFlagData(); track flagData.flag.id) {
+      <div class="flag-card" [class.has-override]="flagData.hasOverride">
+        <div class="flag-header">
+          <div class="flag-info">
+            <h3>{{ flagData.flag.key }}</h3>
+            <span class="environment-badge">{{ flagData.flag.environment }}</span>
+          </div>
+          @if (flagData.hasOverride) {
+            <span class="override-badge">Overridden</span>
+          }
+        </div>
+
+        <div class="flag-states">
+          <div class="state-item">
+            <span class="state-label">Global State:</span>
+            <span class="state-value" [class.enabled]="flagData.flag.isEnabled">
+              {{ flagData.flag.isEnabled ? 'Enabled' : 'Disabled' }}
+            </span>
+          </div>
+
+          @if (flagData.hasOverride && flagData.override) {
+            <div class="state-item override-state">
+              <span class="state-label">Your Override:</span>
+              <span class="state-value" [class.enabled]="flagData.override.isEnabled">
+                {{ flagData.override.isEnabled ? 'Enabled' : 'Disabled' }}
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="flag-actions">
+          @if (flagData.hasOverride && flagData.override) {
+            <div class="override-controls">
+              <app-toggle
+                [initialState]="flagData.override.isEnabled"
+                (toggleOutput)="onToggleOverride($event, flagData.flag, flagData.override)"
+              ></app-toggle>
+              <button
+                class="remove-btn"
+                (click)="onRemoveOverride(flagData.flag, flagData.override)"
+              >
+                Remove Override
+              </button>
+            </div>
+          } @else {
+            <button class="add-override-btn" (click)="onAddOverride(flagData.flag)">
+              Add Override
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (filteredFlagData().length === 0) {
+      <div class="empty-state">
+        <p>No flags found matching your search</p>
+      </div>
+    }
+  </div>
+</div>

@@ -1,10 +1,53 @@
-@for (flag of featureFlags(); track flag.id) {
-  <p>{{ flag.key }}</p>
-}
+<div class="container">
+  <div class="header">
+    <h1>Global Feature Flags</h1>
+    <div class="controls">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search flags..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+      />
+      <div class="group-toggle">
+        <button [class.active]="groupBy() === 'environment'" (click)="groupBy.set('environment')">
+          By Environment
+        </button>
+        <button [class.active]="groupBy() === 'name'" (click)="groupBy.set('name')">By Name</button>
+      </div>
+    </div>
+  </div>
 
-// feature flag dictionary
-@for (key of featureFlagDictionary() | keyvalue; track key.key) {
-  <p>{{ key.key }}: {{ key.value }}</p>
-}
-
-<app-toggle [initialState]="true" (toggleOutput)="onToggle($event)"></app-toggle>
+  @if (groupBy() === 'environment') {
+    @for (group of groupedFlags(); track group.name) {
+      <div class="environment-group">
+        <h2 class="environment-header">{{ group.name }}</h2>
+        <div class="feature-flag-list">
+          @for (flag of group.flags; track flag.id) {
+            <div class="feature-flag">
+              <h3>{{ flag.key }}</h3>
+              <p>Environment: {{ flag.environment }}</p>
+              <app-toggle
+                [initialState]="flag.isEnabled"
+                (toggleOutput)="onFeatureFlagToggle($event, flag)"
+              ></app-toggle>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="feature-flag-list">
+      @for (flag of filteredFlags(); track flag.id) {
+        <div class="feature-flag">
+          <h3>{{ flag.key }}</h3>
+          <p>Environment: {{ flag.environment }}</p>
+          <app-toggle
+            [initialState]="flag.isEnabled"
+            (toggleOutput)="onFeatureFlagToggle($event, flag)"
+          ></app-toggle>
+        </div>
+      }
+    </div>
+  }
+</div>

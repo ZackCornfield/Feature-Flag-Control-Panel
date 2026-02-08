@@ -1,0 +1,70 @@
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditMode ? 'Edit Feature Flag' : 'Create Feature Flag' }}</h2>
+      <button class="close-btn" (click)="onClose()">×</button>
+    </div>
+
+    <form class="modal-body" [formGroup]="flagForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="key">Flag Key</label>
+        <input
+          id="key"
+          type="text"
+          formControlName="key"
+          placeholder="e.g., NEW_DASHBOARD_UI"
+          [class.error]="flagForm.get('key')?.invalid && flagForm.get('key')?.touched"
+        />
+        @if (flagForm.get('key')?.invalid && flagForm.get('key')?.touched) {
+          <span class="error-message">Flag key is required</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="environment">Environment</label>
+        <select
+          id="environment"
+          formControlName="environment"
+          [class.error]="
+            flagForm.get('environment')?.invalid && flagForm.get('environment')?.touched
+          "
+        >
+          <option value="">Select environment</option>
+          <option value="development">Development</option>
+          <option value="test">Test</option>
+          <option value="production">Production</option>
+        </select>
+        @if (flagForm.get('environment')?.invalid && flagForm.get('environment')?.touched) {
+          <span class="error-message">Environment is required</span>
+        }
+      </div>
+
+      @if (isEditMode) {
+        <div class="form-group">
+          <label for="isEnabled">Status</label>
+          <p class="helper-text">
+            This flag is currently {{ flagForm.get('isEnabled')?.value ? 'enabled' : 'disabled' }}
+          </p>
+        </div>
+      } @else {
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="isEnabled" />
+            <span>Enable this flag</span>
+          </label>
+          <p class="helper-text">
+            Flag will be {{ flagForm.get('isEnabled')?.value ? 'enabled' : 'disabled' }} when
+            created
+          </p>
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" (click)="onClose()">Cancel</button>
+        <button type="submit" class="submit-btn" [disabled]="flagForm.invalid">
+          {{ isEditMode ? 'Update Flag' : 'Create Flag' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

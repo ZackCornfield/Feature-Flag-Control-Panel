@@ -1,6 +1,7 @@
 <div class="container">
   <div class="header">
     <h1>Global Feature Flags</h1>
+    <button class="create-btn" (click)="showCreateModal()">+ Create Flag</button>
     <div class="controls">
       <input
         type="text"
@@ -31,6 +32,7 @@
                 [initialState]="flag.isEnabled"
                 (toggleOutput)="onFeatureFlagToggle($event, flag)"
               ></app-toggle>
+              <button class="edit-btn" (click)="showEditModal(flag)">Edit</button>
             </div>
           }
         </div>
@@ -46,8 +48,17 @@
             [initialState]="flag.isEnabled"
             (toggleOutput)="onFeatureFlagToggle($event, flag)"
           ></app-toggle>
+          <button class="edit-btn" (click)="showEditModal(flag)">Edit</button>
         </div>
       }
     </div>
   }
 </div>
+
+@if (isModalOpen()) {
+  <app-feature-flag-modal
+    [flag]="selectedFlag()"
+    (save)="onSaveFlag($event)"
+    (close)="onModalClose()"
+  ></app-feature-flag-modal>
+}

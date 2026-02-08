@@ -5,7 +5,47 @@
 }
 
 .header {
-  margin-bottom: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.create-btn {
+  padding: 0.75rem 1.5rem;
+  background: #4a6e92;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.create-btn:hover {
+  background: #5881aa;
+  transform: translateY(-1px);
+}
+
+.edit-btn {
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem; /* Add gap between the edit button and the toggle */
+  width: auto; /* Ensure the button is not too wide */
+  max-width: 100px; /* Optional: Limit the maximum width */
+}
+
+.edit-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
 }
 
 h1 {
@@ -89,6 +129,8 @@ h1 {
 }
 
 .feature-flag {
+  display: flex;
+  flex-direction: column;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;

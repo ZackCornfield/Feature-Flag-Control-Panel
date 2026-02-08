@@ -1,8 +1,12 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
-import { FeatureFlagDto, FeatureFlagService } from '../../../../core/services/feature-flag';
-import { Router } from '@angular/router';
+import {
+  FeatureFlagDto,
+  FeatureFlagRequestDto,
+  FeatureFlagService,
+} from '../../../../core/services/feature-flag';
 import { Toggle } from '../../../../shared/components/toggle/toggle';
 import { FormsModule } from '@angular/forms';
+import { FeatureFlagModal } from '../feature-flag-modal/feature-flag-modal';
 
 interface FlagGroup {
   name: string;
@@ -11,19 +15,19 @@ interface FlagGroup {
 
 @Component({
   selector: 'app-feature-flag-list',
-  imports: [Toggle, FormsModule],
+  imports: [Toggle, FormsModule, FeatureFlagModal],
   templateUrl: './feature-flag-list.html',
   styleUrl: './feature-flag-list.css',
 })
 export class FeatureFlagList implements OnInit {
-  constructor(
-    private featureFlagService: FeatureFlagService,
-    private router: Router,
-  ) {}
+  constructor(private featureFlagService: FeatureFlagService) {}
 
   featureFlags = signal<FeatureFlagDto[]>([]);
   searchTerm = '';
   groupBy = signal<'environment' | 'name'>('environment');
+
+  isModalOpen = signal(false);
+  selectedFlag = signal<FeatureFlagDto | null>(null);
 
   // Filtered flags based on search (note to self: computed signals automatically recompute when dependencies (other signals) change)
   filteredFlags = computed(() => {
@@ -92,5 +96,46 @@ export class FeatureFlagList implements OnInit {
       },
       error: (err) => console.error('Error toggling feature flag', err),
     });
+  }
+
+  showCreateModal(): void {
+    this.selectedFlag.set(null);
+    this.isModalOpen.set(true);
+  }
+
+  showEditModal(flag: FeatureFlagDto): void {
+    this.selectedFlag.set(flag);
+    this.isModalOpen.set(true);
+  }
+
+  onModalClose(): void {
+    this.isModalOpen.set(false);
+    this.selectedFlag.set(null);
+  }
+
+  onSaveFlag(request: FeatureFlagRequestDto): void {
+    const flag = this.selectedFlag();
+
+    if (flag) {
+      // Edit existing flag
+      this.featureFlagService.updateFeatureFlag(flag.id, request).subscribe({
+        next: (updatedFlag) => {
+          console.log(`Feature flag ${updatedFlag.key} updated`);
+          this.loadFeatureFlags();
+          this.onModalClose();
+        },
+        error: (err) => console.error('Error updating feature flag', err),
+      });
+    } else {
+      // Create new flag
+      this.featureFlagService.createFeatureFlag(request).subscribe({
+        next: (newFlag) => {
+          console.log(`Feature flag ${newFlag.key} created`);
+          this.loadFeatureFlags();
+          this.onModalClose();
+        },
+        error: (err) => console.error('Error creating feature flag', err),
+      });
+    }
   }
 }

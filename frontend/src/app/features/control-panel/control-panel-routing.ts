@@ -30,7 +30,7 @@ export const CONTROL_PANEL_ROUTES: Routes = [
         component: FeatureFlagEdit,
       },
       {
-        path: ':id/overrides',
+        path: 'overrides',
         canActivate: [authGuard],
         component: FeatureFlagOverrides,
       },

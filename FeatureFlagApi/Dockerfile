@@ -7,10 +7,10 @@ ENV ASPNETCORE_URLS=http://+:5248
 FROM mcr.microsoft.com/dotnet/sdk:10.0-nanoserver-ltsc2022 AS build
 ARG configuration=Release
 WORKDIR /src
-COPY ["FeatureFlagApi/FeatureFlagApi.csproj", "FeatureFlagApi/"]
-RUN dotnet restore "FeatureFlagApi\FeatureFlagApi.csproj"
+COPY ["FeatureFlagApi.csproj", "./"]
+RUN dotnet restore "FeatureFlagApi.csproj"
 COPY . .
-WORKDIR "/src/FeatureFlagApi"
+WORKDIR "/src"
 RUN dotnet build "FeatureFlagApi.csproj" -c $configuration -o /app/build
 
 FROM build AS publish

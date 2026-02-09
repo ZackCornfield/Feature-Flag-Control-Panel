@@ -52,6 +52,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddNpgsql<FeatureFlagDbContext>(connectionString); // Use PostgreSQL for production
 
+// Dynamically load CORS origins based on environment
+var allowedOrigins = app.Environment.IsDevelopment()
+    ? builder.Configuration.GetSection("Cors:AllowedOrigins:Default").Get<string[]>() 
+    : builder.Configuration.GetSection("Cors:AllowedOrigins:Production").Get<string[]>();
+
 // 5. Configure CORS
 builder.Services.AddCors(options =>
 {
@@ -60,16 +65,15 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins(
-                    builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                        ?? Array.Empty<string>()
-                )
+                .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .SetIsOriginAllowedToAllowWildcardSubdomains();
         }
     );
 });
+
+Console.WriteLine(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>());
 
 // Add Authentication
 builder

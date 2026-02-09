@@ -19,5 +19,8 @@ public class FeatureFlagDbContext(DbContextOptions<FeatureFlagDbContext> options
             .Entity<FeatureFlag>()
             .HasIndex(ff => new { ff.Key, ff.Environment })
             .IsUnique();
+
+        // Configure User.Id as UUID
+        modelBuilder.Entity<User>().Property(u => u.Id).HasColumnType("uuid");
     }
 }

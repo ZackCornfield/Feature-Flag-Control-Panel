@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeatureFlagApi.Migrations
 {
     [DbContext(typeof(FeatureFlagDbContext))]
-    [Migration("20260209045000_ProductionSchemaUpdate")]
-    partial class ProductionSchemaUpdate
+    [Migration("20260209061832_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

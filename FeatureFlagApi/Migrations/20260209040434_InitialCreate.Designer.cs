@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FeatureFlagApi.Migrations
 {
     [DbContext(typeof(FeatureFlagDbContext))]
-    [Migration("20260205045221_Update1")]
-    partial class Update1
+    [Migration("20260209040434_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,7 +42,7 @@ namespace FeatureFlagApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Key")
+                    b.HasIndex("Key", "Environment")
                         .IsUnique();
 
                     b.ToTable("FeatureFlags");

@@ -18,8 +18,8 @@ namespace FeatureFlagApi.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     FeatureFlagId = table.Column<int>(type: "INTEGER", nullable: false),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    isEnabled = table.Column<bool>(type: "INTEGER", nullable: false)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,9 +57,9 @@ namespace FeatureFlagApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FeatureFlags_Key",
+                name: "IX_FeatureFlags_Key_Environment",
                 table: "FeatureFlags",
-                column: "Key",
+                columns: new[] { "Key", "Environment" },
                 unique: true);
         }
 

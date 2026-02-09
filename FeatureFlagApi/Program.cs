@@ -48,13 +48,9 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// 4. Configure database
-var environment = builder.Environment.EnvironmentName;
-var connectionString =
-    environment == "Development"
-        ? builder.Configuration.GetConnectionString("DevelopmentConnection")
-        : builder.Configuration.GetConnectionString("ProductionConnection");
-builder.Services.AddNpgsql<FeatureFlagDbContext>(connectionString);
+// Configure database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddNpgsql<FeatureFlagDbContext>(connectionString); // Use PostgreSQL for production
 
 // 5. Configure CORS
 builder.Services.AddCors(options =>

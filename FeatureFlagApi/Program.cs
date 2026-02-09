@@ -54,7 +54,7 @@ var connectionString =
     environment == "Development"
         ? builder.Configuration.GetConnectionString("DevelopmentConnection")
         : builder.Configuration.GetConnectionString("ProductionConnection");
-builder.Services.AddSqlite<FeatureFlagDbContext>(connectionString);
+builder.Services.AddNpgsql<FeatureFlagDbContext>(connectionString);
 
 // 5. Configure CORS
 builder.Services.AddCors(options =>

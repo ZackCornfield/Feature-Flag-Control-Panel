@@ -3,6 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { StorageService } from './storage';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/internal/operators/tap';
+import { environment } from '../../../environments/environment';
 
 export interface UserDto {
   id: string;
@@ -28,19 +29,19 @@ export class AuthService {
     this.loadUserFromStorage();
   }
 
-  private readonly API_URL = 'http://localhost:5248/api/auth/';
+  private readonly API_URL = environment.API_URL + '/auth';
   currentUser = signal<UserDto | null>(null);
   isAuthenticated = signal<boolean>(false);
 
   login(credentials: UserRequestDto) {
     return this.http
-      .post<UserDto>(this.API_URL + 'login', credentials)
+      .post<UserDto>(this.API_URL + '/login', credentials)
       .pipe(tap((user) => this.handleAuthSuccess(user)));
   }
 
   register(credentials: UserRequestDto) {
     return this.http
-      .post<UserDto>(this.API_URL + 'register', credentials)
+      .post<UserDto>(this.API_URL + '/register', credentials)
       .pipe(tap((user) => this.handleAuthSuccess(user)));
   }
 

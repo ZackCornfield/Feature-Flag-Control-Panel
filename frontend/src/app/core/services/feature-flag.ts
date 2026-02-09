@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface FeatureFlagDto {
   id: number;
@@ -32,7 +33,7 @@ export interface FeatureFlagToggleRequestDto {
 export class FeatureFlagService {
   constructor(private http: HttpClient) {}
 
-  private readonly API_URL = 'http://localhost:5248/api/featureflag';
+  private readonly API_URL = environment.API_URL + '/featureflag';
 
   getAllFeatureFlags(): Observable<FeatureFlagDto[]> {
     return this.http.get<FeatureFlagDto[]>(`${this.API_URL}/`);

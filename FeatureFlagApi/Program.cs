@@ -60,7 +60,10 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:4200")
+                .WithOrigins(
+                    builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                        ?? Array.Empty<string>()
+                )
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .SetIsOriginAllowedToAllowWildcardSubdomains();

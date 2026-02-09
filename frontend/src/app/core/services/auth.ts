@@ -48,7 +48,7 @@ export class AuthService {
     this.storage.clear();
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
-    this.router.navigate(['/login']);
+    this.router.navigate(['control-panel/login']);
   }
 
   getToken(): string | null {

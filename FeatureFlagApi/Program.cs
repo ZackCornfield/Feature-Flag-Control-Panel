@@ -49,8 +49,12 @@ builder.Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // 4. Configure database
-var connString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddSqlite<FeatureFlagDbContext>(connString);
+var environment = builder.Environment.EnvironmentName;
+var connectionString =
+    environment == "Development"
+        ? builder.Configuration.GetConnectionString("DevelopmentConnection")
+        : builder.Configuration.GetConnectionString("ProductionConnection");
+builder.Services.AddSqlite<FeatureFlagDbContext>(connectionString);
 
 // 5. Configure CORS
 builder.Services.AddCors(options =>

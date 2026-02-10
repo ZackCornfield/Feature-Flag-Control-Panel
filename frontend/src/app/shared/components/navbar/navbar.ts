@@ -14,4 +14,8 @@ export class Navbar {
   logout(): void {
     this.authService.logout();
   }
+
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
 }

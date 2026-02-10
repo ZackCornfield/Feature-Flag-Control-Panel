@@ -4,6 +4,8 @@
     <a routerLink="/demo" class="navbar-link">Demo</a>
     <a routerLink="/control-panel" class="navbar-link">Dashboard</a>
     <a routerLink="/control-panel/overrides" class="navbar-link">Override Panel</a>
-    <button class="logout-btn" (click)="logout()">Logout</button>
+    @if (isAuthenticated()) {
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    }
   </div>
 </div>

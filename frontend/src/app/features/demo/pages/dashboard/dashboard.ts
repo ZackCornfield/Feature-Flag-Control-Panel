@@ -36,7 +36,7 @@ export class Dashboard implements OnInit {
 
   loadFeatureFlags(): void {
     const currentUser = this.authService.currentUser();
-    const userId = currentUser?.id || 'EAE48F79-72D7-4C4A-8045-4C866F6B3A8B';
+    const userId = 'EAE48F79-72D7-4C4A-8045-4C866F6B3A8B';
     const environment = 'production';
 
     // Define the flags we want to check
